@@ -21,10 +21,10 @@ public class Connect4Game
 
     public bool Victory(int playedID, Vector2Int position)
     {
-        return horizontalWin(playedID, position) || verticalWin(playedID, position) || diagonalWin(playedID, position);
+        return verticalWin(playedID, position) || horizontalWin(playedID, position) || diagonalWin(playedID, position);
     }
 
-    private bool horizontalWin(int playerID, Vector2Int position)
+    private bool verticalWin(int playerID, Vector2Int position)
     {
         int count = 1;
         for (int x = position.x + 1; x < _board.RowCount; x++)
@@ -44,7 +44,7 @@ public class Connect4Game
         return false;
     }
 
-    private bool verticalWin(int playerID, Vector2Int position)
+    private bool horizontalWin(int playerID, Vector2Int position)
     {
         int count = 1;
         for (int y = position.y + 1; y < _board.ColCount; y++)

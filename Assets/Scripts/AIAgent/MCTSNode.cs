@@ -22,14 +22,16 @@ public class MCTSNode
     public int myID;
 
     public Vector2Int boardMove;
+    public Vector2Int placementMove;
 
-    public MCTSNode(Connect4Game game, MCTSNode parent, MCTSNode root, int playerID, Vector2Int boardMove)
+    public MCTSNode(Connect4Game game, MCTSNode parent, MCTSNode root, int playerID, Vector2Int boardPlacement, Vector2Int boardMove)
     {
         this.game = new Connect4Game(game);
         this.parent = parent;
         this.root = root;
         this.playerID = playerID;
         this.boardMove = boardMove;
+        this.placementMove = boardPlacement;
 
         childrens = new List<MCTSNode>();
         _visits = 0;
@@ -83,13 +85,14 @@ public class MCTSNode
         {
             this.visited = true;
             this.end_node = true;
-            if(this.playerID == this.myID) result = 1;
+            if (this.playerID == this.myID) result = 1000f;
+            else result = -1000f;
         }
         else if (this.game.Board.isBoardFull())
         {
             this.visited = true;
             this.end_node = true;
-            result = 0.5f;
+            result = 0f;
         }
 
         return result;
@@ -106,7 +109,7 @@ public class MCTSNode
 
             if (winnerID == 0)
             {
-                result = -0.5f;
+                result = 0f;
             }
             else if(winnerID == this.myID)
             {
@@ -114,7 +117,7 @@ public class MCTSNode
             }
             else
             {
-                result = -10f;
+                result = -1f;
             }
         }
 
@@ -159,10 +162,10 @@ public class MCTSNode
 
         foreach (MCTSNode node in this.childrens)
         {
-            node.computeUCB();
+            if(node.visited) node.computeUCB();
         }
 
-        float best_ucb = -1000;
+        float best_ucb = -10000;
         MCTSNode best_child = null;
 
         foreach (MCTSNode node in this.childrens)
@@ -174,8 +177,8 @@ public class MCTSNode
             }
         }
 
-        if (best_child == null) { this.root.end = true; }
-        return best_child;
+        if (best_child == null) { this.root.end = true; return null; }
+        return best_child.selection();
     }
 
     public void expand(List<Vector2Int> possibleMoves, int pID)
@@ -184,7 +187,7 @@ public class MCTSNode
         {
             Connect4Game childGame = new Connect4Game(this.game);
             Vector2Int realMove = childGame.Board.placePosition(move, pID);
-            MCTSNode node = new MCTSNode(childGame, this, this.root, pID, realMove);
+            MCTSNode node = new MCTSNode(childGame, this, this.root, pID, move, realMove);
             this.childrens.Add(node);
         }
     }

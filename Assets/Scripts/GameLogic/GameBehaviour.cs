@@ -44,7 +44,7 @@ public class GameBehaviour : MonoBehaviour
 
         if (_isAIOpponent)
         {
-            Vector2Int aiMove = aiPlay(400);
+            Vector2Int aiMove = aiPlay(1000);
             _game.Board.placePosition(aiMove, 2);
             Instantiate(_players[1], _positions[aiMove.x, aiMove.y], Quaternion.identity);
 
@@ -78,7 +78,7 @@ public class GameBehaviour : MonoBehaviour
 
             if (_isAIOpponent) 
             { 
-                Vector2Int aiMove = aiPlay(400);
+                Vector2Int aiMove = aiPlay(1000);
                 _game.Board.placePosition(aiMove, 2);
                 Instantiate(_players[1], _positions[aiMove.x, aiMove.y], Quaternion.identity);
 
@@ -93,17 +93,15 @@ public class GameBehaviour : MonoBehaviour
     public Vector2Int aiPlay(int iterations)
     {
         //Debug.Log("START");
-        _root_node = new MCTSNode(_game, null, null, 2, Vector2Int.one * -1);
+        _root_node = new MCTSNode(_game, null, null, 2, Vector2Int.one * -1, Vector2Int.one * -1);
         _root_node.visited = true;
         _root_node.root = _root_node;
         _root_node.expand(_game.Board.freePositions(), 2);
-
-        MCTSNode selectedNode = null;
         for (int i = 0; i < iterations; i++)
         {
-            //if (this._root_node.end) break;
+            if (this._root_node.end) break;
 
-            selectedNode = _root_node.selection();
+            MCTSNode selectedNode = _root_node.selection();
             if (selectedNode == null) continue;
 
             int playerID = 2;
@@ -121,9 +119,9 @@ public class GameBehaviour : MonoBehaviour
             }
         }
 
-        float bestAvgWin = -1000;
+        float bestAvgWin = -10000;
         MCTSNode best_move = null;
-
+        List<MCTSNode> best_moves = new List<MCTSNode>();
         foreach (MCTSNode child in _root_node.childrens)
         {
             if(child._visits != 0)
@@ -137,8 +135,17 @@ public class GameBehaviour : MonoBehaviour
                 }
             }
         }
+        foreach (MCTSNode child in _root_node.childrens)
+        {
+            float averageWin = child._score / child._visits;
 
-        return best_move.boardMove;
+            if (averageWin == bestAvgWin)
+            {
+                best_moves.Add(child);
+            }
+        }
+        return best_moves[Random.Range(0, best_moves.Count)].boardMove;
+        //return best_move.boardMove;
     }
 
     public void GenerateBoardPositions()

@@ -51,13 +51,10 @@ public class Board
     {
         List<Vector2Int> freePosistions = new List<Vector2Int>();
 
-        for (int x = 0; x < _rowCount; x++)
+        for (int y = 0; y < _colCount; y++)
         {
-            for (int y = 0; y < _colCount; y++)
-            {
-                Vector2Int position = new Vector2Int(x, y);
-                if (is_FreeAt(position)) freePosistions.Add(position);
-            }
+            Vector2Int position = new Vector2Int(0, y);
+            if (is_FreeAt(position)) freePosistions.Add(position);
         }
 
         return freePosistions;
@@ -66,19 +63,18 @@ public class Board
     public Vector2Int getRandomFreePosition()
     {
         List<Vector2Int> temp = freePositions();
+
         if (temp.Count == 0) return Vector2Int.one * -1;
+
         int rd = UnityEngine.Random.Range(0, temp.Count);
         return temp[rd];
     }
 
     public bool isBoardFull()
     {
-        for (int x = 0; x < _rowCount; x++)
+        for (int y = 0; y < _colCount; y++)
         {
-            for (int y = 0; y < _colCount; y++)
-            {
-                if (is_FreeAt(new Vector2Int(x, y))) return false;
-            }
+            if (is_FreeAt(new Vector2Int(0, y))) return false;
         }
 
         return true;
