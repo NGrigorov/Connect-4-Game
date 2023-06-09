@@ -2,7 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.UI;
 using UnityEngine;
-
+/// <summary>
+/// Class <c>MCTSNode</c> holds a game-state, a move and the value of the move
+/// </summary>
 public class MCTSNode
 {
     public Connect4Game game;
@@ -10,8 +12,8 @@ public class MCTSNode
     public MCTSNode root;
     public List<MCTSNode> childrens;
 
-    public float _visits;
-    public float _score;
+    public float visits;
+    public float score;
     public float ucb;
 
     public bool visited;
@@ -24,6 +26,9 @@ public class MCTSNode
     public Vector2Int boardMove;
     public Vector2Int placementMove;
 
+    /// <summary>
+    /// Constructor <c>MCTSNode</c> creates a node with a copy of the give game, parent, root, playerID and board placement
+    /// </summary>
     public MCTSNode(Connect4Game game, MCTSNode parent, MCTSNode root, int playerID, Vector2Int boardPlacement, Vector2Int boardMove)
     {
         this.game = new Connect4Game(game);
@@ -34,8 +39,8 @@ public class MCTSNode
         this.placementMove = boardPlacement;
 
         childrens = new List<MCTSNode>();
-        _visits = 0;
-        _score = 0;
+        visits = 0;
+        score = 0;
         ucb = float.PositiveInfinity;
         visited = false;
         end_node = false;
@@ -43,26 +48,35 @@ public class MCTSNode
         myID = 2;
     }
 
+    /// <summary>
+    /// Method <c>computeUCB</c> computes the value of the node that is used for <c>selection</c> return decision. Uses 1.4f (rough version of Sqrt(2))
+    /// </summary>
     public void computeUCB()
     {
-        if (this._visits == 0) return;
+        if (this.visits == 0) return;
 
         if(this.playerID == 2)
         {
-            this.ucb = this._score / this._visits + 1.4f * Mathf.Sqrt(Mathf.Log(this.root._visits) / this._visits);
+            this.ucb = this.score / this.visits + 1.4f * Mathf.Sqrt(Mathf.Log(this.root.visits) / this.visits);
         }
         else
         {
-            this.ucb = (-this._score) / this._visits + 1.4f * Mathf.Sqrt(Mathf.Log(this.root._visits) / this._visits);
+            this.ucb = (-this.score) / this.visits + 1.4f * Mathf.Sqrt(Mathf.Log(this.root.visits) / this.visits);
         }
     }
 
+    /// <summary>
+    /// Method <c>computeVisits</c> adds the given visit and score to the node
+    /// </summary>
     public void computeVisits(float visits, float score)
     {
-        this._visits += visits;
-        this._score += score;
+        this.visits += visits;
+        this.score += score;
     }
 
+    /// <summary>
+    /// Method <c>backPropagate</c> propagates the given visit and score to the parent node until the root node
+    /// </summary>
     public void backPropagate(float visits, float score)
     {
         MCTSNode parent = this.parent;
@@ -74,6 +88,9 @@ public class MCTSNode
         }
     }
 
+    /// <summary>
+    /// Method <c>setEndNode</c> tags the node as end_node. Blocks it from being selected in the <c>selection</c> method
+    /// </summary>
     public float setEndNode()
     {
         float result = 0;
@@ -94,6 +111,9 @@ public class MCTSNode
         return result;
     }
 
+    /// <summary>
+    /// Method <c>rollout</c> simulates a play to determine outcome of the current game state and calculate a value
+    /// </summary>
     public void rollout()
     {
         float result = setEndNode();
@@ -123,6 +143,9 @@ public class MCTSNode
 
     }
 
+    /// <summary>
+    /// Method <c>simulateGame</c> simulates a play from the given game state
+    /// </summary>
     public int simulateGame(Connect4Game simGame)
     {
         if(this.playerID == 1)
@@ -152,6 +175,9 @@ public class MCTSNode
         return 0;
     }
 
+    /// <summary>
+    /// Method <c>selection</c> selects the deepest node with the highest UCB
+    /// </summary>
     public MCTSNode selection()
     {
         if (this.childrens.Count == 0) return this;
@@ -177,6 +203,9 @@ public class MCTSNode
         return best_child.selection();
     }
 
+    /// <summary>
+    /// Method <c>expand</c> creates children for the given node
+    /// </summary>
     public void expand(List<Vector2Int> possibleMoves, int pID)
     {
         foreach (Vector2Int move in possibleMoves)

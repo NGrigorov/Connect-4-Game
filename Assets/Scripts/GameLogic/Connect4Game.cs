@@ -1,29 +1,40 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
-
+/// <summary>
+/// Class <c>Connect4Game</c> represents a game of a Connect-4
+/// </summary>
 public class Connect4Game
 {
     private Board _board;
 
     public Board Board { get => _board;}
 
+    /// <summary>
+    /// Constructor <c>Connect4Game</c> creates a Connect-4 game with a board size of given dimensions (rows/cols)
+    /// </summary>
     public Connect4Game(int rows, int collums)
     {
         _board = new Board(rows, collums);
     }
 
+    /// <summary>
+    /// Constructor <c>Connect4Game</c> creates a new Connect-4 game that is a copy of the given game
+    /// </summary>
     public Connect4Game(Connect4Game game)
     {
         _board = new Board(game.Board);
     }
 
+    /// <summary>
+    /// Method <c>Victory</c> returns true if the given position and playerID have a winning pattern else returns false.
+    /// </summary>
     public bool Victory(int playedID, Vector2Int position)
     {
         return verticalWin(playedID, position) || horizontalWin(playedID, position) || diagonalWin(playedID, position);
     }
 
+    /// <summary>
+    /// Method <c>verticalWin</c> returns true if there is a winning pattern vertically else returns false
+    /// </summary>
     private bool verticalWin(int playerID, Vector2Int position)
     {
         int count = 1;
@@ -44,6 +55,9 @@ public class Connect4Game
         return false;
     }
 
+    /// <summary>
+    /// Method <c>horizontalWin</c> returns true if there is a winning pattern horizontally else returns false
+    /// </summary>
     private bool horizontalWin(int playerID, Vector2Int position)
     {
         int count = 1;
@@ -64,6 +78,9 @@ public class Connect4Game
         return false;
     }
 
+    /// <summary>
+    /// Method <c>diagonalWin</c> returns true if there is a winning pattern diagonally else returns false
+    /// </summary>
     private bool diagonalWin(int playerID, Vector2Int position)
     {
         //Left to right diagonal

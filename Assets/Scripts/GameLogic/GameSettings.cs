@@ -1,8 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-
+/// <summary>
+/// Static Class <c>GameSettings</c> holds the game settings for when the opponent is AI. It persists through scenes.
+/// </summary>
 public class GameSettings : MonoBehaviour
 {
     public static GameSettings Instance { get; private set; }
@@ -19,6 +18,9 @@ public class GameSettings : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Enum <c>Difficulty</c> used to set the difficulty of the AI
+    /// </summary>
     public enum Difficulty 
     { 
         easy = 7,
@@ -30,21 +32,33 @@ public class GameSettings : MonoBehaviour
     public bool playVSAI = false;
     public bool aiFirst = true;
 
+    /// <summary>
+    /// Method <c>LoadAIGame</c> prepares the game to played vs AI opponent
+    /// </summary>
     public void LoadAIGame()
     {
         playVSAI = true;
     }
 
+    /// <summary>
+    /// Method <c>LoadHumanGame</c> prepares the game to played vs Human opponent
+    /// </summary>
     public void LoadHumanGame()
     {
         playVSAI = false;
     }
 
+    /// <summary>
+    /// Method <c>PlayFirst</c> makes the AI play first. More difficult AI
+    /// </summary>
     public void PlayFirst(bool value)
     {
         aiFirst = value;
     }
 
+    /// <summary>
+    /// Method <c>SetDifficulty</c> sets the AI difficulty from a given value between 0 and 2
+    /// </summary>
     public void SetDifficulty(float value)
     {
         switch (value)
