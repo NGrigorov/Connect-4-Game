@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameSettings : MonoBehaviour
 {
@@ -14,20 +15,20 @@ public class GameSettings : MonoBehaviour
         else
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            DontDestroyOnLoad(Instance);
         }
     }
 
     public enum Difficulty 
     { 
-        easy = 14,
-        medium = 150,
+        easy = 7,
+        medium = 50,
         hard = 1000
     }
     public Difficulty difficulty = Difficulty.medium;
 
     public bool playVSAI = false;
-    public bool playFirst = false;
+    public bool aiFirst = true;
 
     public void LoadAIGame()
     {
@@ -39,19 +40,28 @@ public class GameSettings : MonoBehaviour
         playVSAI = false;
     }
 
-    public void PlayFirst()
+    public void PlayFirst(bool value)
     {
-        playFirst = true;
+        aiFirst = value;
     }
 
-    public void PlaySecond()
+    public void SetDifficulty(float value)
     {
-        playFirst = false;
-    }
-
-    public void SetDifficulty(Difficulty diff)
-    {
-        difficulty = diff;
+        switch (value)
+        {
+            case 0:
+                difficulty = Difficulty.easy;
+                break;
+            case 1:
+                difficulty = Difficulty.medium;
+                break;
+            case 2:
+                difficulty = Difficulty.hard;
+                break;
+            default:
+                difficulty = Difficulty.medium;
+                break;
+        }
     }
 
 }
