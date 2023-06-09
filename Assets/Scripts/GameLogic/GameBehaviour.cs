@@ -42,15 +42,15 @@ public class GameBehaviour : MonoBehaviour
         Debug.Log(_game.Board.ToString());
 
 
-        if (_isAIOpponent)
-        {
-            Vector2Int aiMove = aiPlay(1000);
-            _game.Board.placePosition(aiMove, 2);
-            Instantiate(_players[1], _positions[aiMove.x, aiMove.y], Quaternion.identity);
+        //if (_isAIOpponent)
+        //{
+        //    Vector2Int aiMove = aiPlay(1000);
+        //    _game.Board.placePosition(aiMove, 2);
+        //    Instantiate(_players[1], _positions[aiMove.x, aiMove.y], Quaternion.identity);
 
-            Debug.Log(_game.Victory(2, aiMove) ? "Player " + 2 + " won!" : "No winner");
-            //Debug.Log("END");
-        }
+        //    Debug.Log(_game.Victory(2, aiMove) ? "Player " + 2 + " won!" : "No winner");
+        //    //Debug.Log("END");
+        //}
     }
 
 
@@ -139,7 +139,7 @@ public class GameBehaviour : MonoBehaviour
         {
             float averageWin = child._score / child._visits;
 
-            if (averageWin == bestAvgWin)
+            if (ApproximatelyEqual(averageWin, bestAvgWin))
             {
                 best_moves.Add(child);
             }
@@ -158,6 +158,11 @@ public class GameBehaviour : MonoBehaviour
                 if (_game.Board.getValueAt(new Vector2Int(i, j)) == 2) Instantiate(player2Prefab, _positions[i, j], Quaternion.identity);
             }
         }
+    }
+
+    public static bool ApproximatelyEqual(float a, float b, float threshold = 0.01f)
+    {
+        return Mathf.Abs(a - b) < threshold;
     }
 
 }
