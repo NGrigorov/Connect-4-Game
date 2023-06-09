@@ -98,7 +98,7 @@ public class Board
         {
             Debug.LogError("Invalid Move - Column is full");
         }
-        return Vector2Int.one * -1;
+        return isBoardFull() ? Vector2Int.one * -2 : Vector2Int.one * -1;
     }
 
     public override string ToString()

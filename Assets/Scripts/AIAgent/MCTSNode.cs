@@ -49,10 +49,6 @@ public class MCTSNode
 
         if(this.playerID == 2)
         {
-            if(this.root == null)
-            {
-                Debug.Log("Null Root");
-            }
             this.ucb = this._score / this._visits + 1.4f * Mathf.Sqrt(Mathf.Log(this.root._visits) / this._visits);
         }
         else

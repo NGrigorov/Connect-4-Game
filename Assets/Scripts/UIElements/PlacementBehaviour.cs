@@ -14,7 +14,7 @@ public class PlacementBehaviour : MonoBehaviour
     }
     private void OnMouseDown()
     {
-        manager.PlacePosition1P(position);
+        manager.MakeMove(GameBehaviour.currentPlayerTurn, position);
         text.text = "Player " + GameBehaviour.currentPlayerTurn;
     }
 }

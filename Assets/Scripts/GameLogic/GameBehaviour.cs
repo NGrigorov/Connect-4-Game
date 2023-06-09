@@ -1,5 +1,9 @@
 using System.Collections.Generic;
+using TMPro;
+using Unity.VisualScripting;
+using UnityEditor.PackageManager;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class GameBehaviour : MonoBehaviour
 {
@@ -8,6 +12,8 @@ public class GameBehaviour : MonoBehaviour
     [SerializeField] private List<Transform> positionTransforms;
     [SerializeField] private GameObject player1Prefab;
     [SerializeField] private GameObject player2Prefab;
+    [SerializeField] private TextMeshProUGUI text;
+
 
     private Connect4Game _game;
     private Vector3[,] _positions;
@@ -15,6 +21,7 @@ public class GameBehaviour : MonoBehaviour
 
     private bool _isAIOpponent;
     private MCTSNode _root_node;
+    private GameSettings _settings;
     
 
     private int rows = 6, cols = 7;
@@ -22,7 +29,8 @@ public class GameBehaviour : MonoBehaviour
     {
         _game = new Connect4Game(rows, cols);
         _positions = new Vector3[rows, cols];
-        
+        _settings = GameSettings.Instance;
+
         _players = new List<GameObject>
         {
             player1Prefab,
@@ -41,58 +49,92 @@ public class GameBehaviour : MonoBehaviour
 
         Debug.Log(_game.Board.ToString());
 
+        if (_settings.playVSAI) 
+        {
+            if (!_settings.playFirst)
+            {
+                ComputerMakeMove();
+            }
+        }
+    }
 
-        //if (_isAIOpponent)
-        //{
-        //    Vector2Int aiMove = aiPlay(1000);
-        //    _game.Board.placePosition(aiMove, 2);
-        //    Instantiate(_players[1], _positions[aiMove.x, aiMove.y], Quaternion.identity);
+    public void GameIsOver(string winner)
+    {
+        fillHistory(winner);
+    }
 
-        //    Debug.Log(_game.Victory(2, aiMove) ? "Player " + 2 + " won!" : "No winner");
-        //    //Debug.Log("END");
-        //}
+    public void invalidMove(string error)
+    {
+        fillHistory(error);
+    }
+
+    public void fillHistory(string line)
+    {
+        text.text += "\n" + line;
+    }
+
+    public void MakeMove(int playedID, Vector2Int position)
+    {
+        if (_settings.playVSAI)
+        {
+            PlacePosition1P(position);
+        }
+        else
+        {
+            PlacePosition2P(playedID, position);
+        }
     }
 
 
     public void PlacePosition2P(int playedID, Vector2Int position)
     {
-        Vector2Int pos = _game.Board.placePosition(position, playedID);
-        if(pos != Vector2Int.one * -1) { 
-            Instantiate(_players[playedID-1], _positions[pos.x, pos.y], Quaternion.identity);
+        currentPlayerTurn = currentPlayerTurn == 1 ? 2 : 1;
 
-            Debug.Log(_game.Board.ToString());
-            Debug.Log(_game.Victory(playedID, pos) ? "Player " + currentPlayerTurn.ToString() + " won!" : "No winner");
-            currentPlayerTurn = currentPlayerTurn == 1 ? 2 : 1;
-        }
+        Vector2Int pos = _game.Board.placePosition(position, playedID);
+
+        if (pos == Vector2Int.one * -1) { invalidMove("Column is full!"); return; }
+
+        Instantiate(_players[playedID - 1], _positions[pos.x, pos.y], Quaternion.identity);
+        if (_game.Victory(playedID, pos)) { GameIsOver("Winner is player: " + playedID + "!"); return;  }
+
+        fillHistory("Player " + playedID + " Made a move on: " + pos);
+        if (_game.Board.isBoardFull()) { GameIsOver("Draw!"); return; }
+
+        
     }
 
     public void PlacePosition1P(Vector2Int position)
     {
         Vector2Int pos = _game.Board.placePosition(position, 1);
-        if (pos != Vector2Int.one * -1)
-        {
-            Instantiate(_players[0], _positions[pos.x, pos.y], Quaternion.identity);
 
-            
-            Debug.Log(_game.Victory(1, pos) ? "Player " + 1 + " won!" : "No winner");
+        //Player didnt make a valid move -> selected a column thats full
+        if (pos == Vector2Int.one * -1) { invalidMove("Column is full!"); return; }
 
-            if (_isAIOpponent) 
-            { 
-                Vector2Int aiMove = aiPlay(1000);
-                _game.Board.placePosition(aiMove, 2);
-                Instantiate(_players[1], _positions[aiMove.x, aiMove.y], Quaternion.identity);
+        Instantiate(_players[0], _positions[pos.x, pos.y], Quaternion.identity);
+        if (_game.Victory(1, pos)) { GameIsOver("Winner is player: " + 1 + "!"); return; }
+        
+        fillHistory("Player " + 1 + " made a move on: " + pos);
+        if (_game.Board.isBoardFull()) { GameIsOver("Draw!"); return; }
 
-                Debug.Log(_game.Victory(2, aiMove) ? "Player " + 2 + " won!" : "No winner");
-                //Debug.Log("END");
-            }
+        ComputerMakeMove();
+        
+    }
 
-            //Debug.Log(_game.Board.ToString());
-        }
+    public void ComputerMakeMove()
+    {   
+        Vector2Int aiMove = aiPlay((int)_settings.difficulty);
+        Vector2Int pos = _game.Board.placePosition(aiMove, 2);
+
+        Instantiate(_players[1], _positions[aiMove.x, aiMove.y], Quaternion.identity);
+        if (_game.Victory(2, pos)) { GameIsOver("Winner is player: " + 2 + "!"); return; }
+
+        fillHistory("Computer made a move on: " + pos);
+        //Ai couldn't make a move -> Board is full (AI wont select a full column)
+        if (_game.Board.isBoardFull()) { GameIsOver("Draw!"); return; }
     }
 
     public Vector2Int aiPlay(int iterations)
     {
-        //Debug.Log("START");
         _root_node = new MCTSNode(_game, null, null, 2, Vector2Int.one * -1, Vector2Int.one * -1);
         _root_node.visited = true;
         _root_node.root = _root_node;
@@ -118,9 +160,7 @@ public class GameBehaviour : MonoBehaviour
                 selectedNode.rollout();
             }
         }
-
         float bestAvgWin = -10000;
-        MCTSNode best_move = null;
         List<MCTSNode> best_moves = new List<MCTSNode>();
         foreach (MCTSNode child in _root_node.childrens)
         {
@@ -131,7 +171,6 @@ public class GameBehaviour : MonoBehaviour
                 if(averageWin >= bestAvgWin)
                 {
                     bestAvgWin = averageWin;
-                    best_move = child;
                 }
             }
         }
