@@ -1,6 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.UI;
 using UnityEngine;
 /// <summary>
 /// Class <c>MCTSNode</c> holds a game-state, a move and the value of the move
