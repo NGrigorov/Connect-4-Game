@@ -1,6 +1,10 @@
 # Connect-4-Game
 A classic Connect-4 tabletop game version via Unity3D in the style of a school notebook.
 
+![Main menu scene](https://github.com/NGrigorov/Connect-4-Game/assets/Images/MainScenePhoto.png)
+![Game scene](https://github.com/NGrigorov/Connect-4-Game/assets/Images/GameScenePhoto.png)
+
+
 Features:
 - One vs One
 - One vs AI
