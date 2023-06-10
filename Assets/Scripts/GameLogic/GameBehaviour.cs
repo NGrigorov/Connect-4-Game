@@ -18,6 +18,9 @@ public class GameBehaviour : MonoBehaviour
     [SerializeField] private TextMeshProUGUI winScreenText;
     [SerializeField] private GameObject panel;
 
+    //Sounds
+    [SerializeField] private AudioSource scribble;
+
 
 
     private Connect4Game _game;
@@ -66,6 +69,11 @@ public class GameBehaviour : MonoBehaviour
                 ComputerMakeMove();
             }
         }
+    }
+
+    void playScribbleSound()
+    {
+        scribble.Play();
     }
 
     /// <summary>
@@ -143,7 +151,7 @@ public class GameBehaviour : MonoBehaviour
         if (pos == Vector2Int.one * -1) { invalidMove("Column is full!"); return; }
 
         Instantiate(_players[playedID - 1], _positions[pos.x, pos.y]);
-        Instantiate(_players[playedID - 1], _positions[pos.x, pos.y]);
+        playScribbleSound();
         if (_game.Victory(playedID, pos)) { GameIsOver("Winner is player: " + playedID + "!"); return;  }
 
         fillHistory("Player " + playedID + ": " + pos);
@@ -164,6 +172,7 @@ public class GameBehaviour : MonoBehaviour
         if (pos == Vector2Int.one * -1) { invalidMove("Column is full!"); return; }
 
         Instantiate(_players[0], _positions[pos.x, pos.y]);
+        playScribbleSound();
         if (_game.Victory(1, pos)) { GameIsOver("Winner is player: " + 1 + "!"); return; }
         
         fillHistory("Player " + 1 + ": " + pos);
@@ -183,6 +192,7 @@ public class GameBehaviour : MonoBehaviour
         Vector2Int pos = _game.Board.placePosition(aiMove, 2);
 
         Instantiate(_players[1], _positions[aiMove.x, aiMove.y]);
+        playScribbleSound();
         if (_game.Victory(2, pos)) { GameIsOver("Winner is player: " + 2 + "!"); return; }
 
         fillHistory("Computer: " + pos);
